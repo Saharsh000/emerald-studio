@@ -2,11 +2,11 @@
  * Emerald Free-Fly / Noclip Map Tester Client
  * Complete free-flight exploration of Hoenn:
  * - 60 FPS keyboard velocity flight (WASD, Arrows, Shift Mach-Boost, Space Warp)
- * - Pure overworld rendering without NPCs
- * - Auto-detecting Route Location HUD
- * - Live weather sync and manual weather controls
- * - Wild encounters radar with starter check
- * - POI quick-warp teleportation
+ * - Directional Rayquaza Avatar (Down, Up, Left, Right)
+ * - Dynamic Real-Time Grass & Terrain Shaders (Snow, Ash, Rain, Sunny)
+ * - Live High-Impact Weather Engine & Auto-Sync
+ * - Wild encounters radar with 0% starter exclusivity check
+ * - Instant POI Teleportation
  */
 
 (function(window) {
@@ -22,6 +22,7 @@
       this.currentLocation = null;
       this.autoWeather = true;
       this.weatherEngine = null;
+      this.currentGrassPalette = "sunny";
 
       // Flight movement physics
       this.keys = {};
@@ -66,11 +67,11 @@
           { name: "Wurmple", type: "Grass", rate: "15%", level: "6-8" }
         ],
         "Route 119": [
-          { name: "Tropius", type: "Tall Grass", rate: "20%", level: "25-28" },
-          { name: "Kecleon", type: "Tall Grass", rate: "15%", level: "25-28" },
+          { name: "Tropius", type: "Tall Snow Grass", rate: "20%", level: "25-28" },
+          { name: "Kecleon", type: "Tall Snow Grass", rate: "15%", level: "25-28" },
           { name: "Feebas", type: "Fishing", rate: "Tile Specific", level: "20-25" },
-          { name: "Gloom", type: "Tall Grass", rate: "20%", level: "25-28" },
-          { name: "Linoone", type: "Tall Grass", rate: "20%", level: "25-28" }
+          { name: "Gloom", type: "Tall Snow Grass", rate: "20%", level: "25-28" },
+          { name: "Linoone", type: "Tall Snow Grass", rate: "20%", level: "25-28" }
         ],
         "Route 113": [
           { name: "Skarmory", type: "Ash Grass", rate: "20%", level: "15-18" },
@@ -96,6 +97,7 @@
       this.initWeather();
       this.initFlightControls();
       this.initUI();
+      this.setGrassPalette("sunny");
       this.startFlightLoop();
     }
 
@@ -169,9 +171,30 @@
       }
     }
 
+    setGrassPalette(palette) {
+      const mapEl = document.getElementById("emerald-leaflet-map");
+      if (!mapEl) return;
+
+      this.currentGrassPalette = palette;
+      mapEl.classList.remove("grass-snow", "grass-ash", "grass-rain", "grass-sunny");
+
+      if (palette === "snow") mapEl.classList.add("grass-snow");
+      else if (palette === "ash") mapEl.classList.add("grass-ash");
+      else if (palette === "rain") mapEl.classList.add("grass-rain");
+      else mapEl.classList.add("grass-sunny");
+
+      // Update HUD grass badge
+      const grassBadgeEl = document.getElementById("banner-grass-badge");
+      if (grassBadgeEl) {
+        if (palette === "snow") grassBadgeEl.textContent = "❄️ Frost Snow Turf";
+        else if (palette === "ash") grassBadgeEl.textContent = "🌋 Volcanic Ash Ground";
+        else if (palette === "rain") grassBadgeEl.textContent = "🌧️ Soaked Rain Turf";
+        else grassBadgeEl.textContent = "🌿 Emerald Green Turf";
+      }
+    }
+
     initFlightControls() {
       window.addEventListener("keydown", (e) => {
-        // Ignore typing in input fields
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") {
           return;
         }
@@ -190,8 +213,26 @@
       });
     }
 
-    startFlightLoop() {
+    updateAvatarDirection(facing) {
       const avatarEl = document.getElementById("player-avatar-sprite");
+      if (!avatarEl || this.avatarType !== "rayquaza") return;
+
+      if (facing === "up") {
+        avatarEl.src = "assets/sprites/rayquaza_up.png";
+        avatarEl.style.transform = "scaleX(1)";
+      } else if (facing === "down") {
+        avatarEl.src = "assets/sprites/rayquaza_down.png";
+        avatarEl.style.transform = "scaleX(1)";
+      } else if (facing === "left") {
+        avatarEl.src = "assets/sprites/rayquaza_side.png";
+        avatarEl.style.transform = "scaleX(-1)";
+      } else if (facing === "right") {
+        avatarEl.src = "assets/sprites/rayquaza_side.png";
+        avatarEl.style.transform = "scaleX(1)";
+      }
+    }
+
+    startFlightLoop() {
       const speedValEl = document.getElementById("telemetry-speed");
 
       const tick = () => {
@@ -205,7 +246,6 @@
         if (this.keys["d"] || this.keys["arrowright"]) dx += 1;
 
         if (dx !== 0 || dy !== 0) {
-          // Normalize diagonal
           const mag = Math.sqrt(dx * dx + dy * dy);
           let vx = (dx / mag);
           let vy = (dy / mag);
@@ -224,11 +264,17 @@
 
           // Update avatar orientation
           if (Math.abs(dx) > Math.abs(dy)) {
-            this.avatarFacing = dx > 0 ? "right" : "left";
-            if (avatarEl) avatarEl.style.transform = dx > 0 ? "scaleX(1)" : "scaleX(-1)";
+            const facing = dx > 0 ? "right" : "left";
+            if (this.avatarFacing !== facing) {
+              this.avatarFacing = facing;
+              this.updateAvatarDirection(facing);
+            }
           } else {
-            this.avatarFacing = dy > 0 ? "down" : "up";
-            if (avatarEl) avatarEl.style.transform = "scaleX(1)";
+            const facing = dy > 0 ? "down" : "up";
+            if (this.avatarFacing !== facing) {
+              this.avatarFacing = facing;
+              this.updateAvatarDirection(facing);
+            }
           }
 
           if (speedValEl) {
@@ -259,9 +305,6 @@
       const zoomEl = document.getElementById("telemetry-zoom");
       const mapNameEl = document.getElementById("telemetry-map");
 
-      // Approximate GBA tile coordinates
-      // Leaflet lat: [-95.74 to 0], lng: [0 to 200]
-      // 1 Leaflet unit ≈ 4 GBA tiles (0.25 tileSize)
       const tileX = Math.round((center.lng / 0.25));
       const tileY = Math.round((center.lat / 0.25));
 
@@ -272,11 +315,10 @@
 
     detectCurrentLocation(center) {
       if (this.activeMapId !== "Overworld") {
-        this.updateLocationBanner(this.activeMapId, "Dungeon / Crater Interior", "none");
+        this.updateLocationBanner(this.activeMapId, "Dungeon / Interior", "none");
         return;
       }
 
-      // Check polygon point-in-polygon
       const pt = [center.lat, center.lng];
       let matched = null;
 
@@ -289,7 +331,6 @@
         }
       }
 
-      // Fallback nearest distance if not inside exact polygon
       if (!matched) {
         let minDist = Infinity;
         for (const route of this.routes) {
@@ -308,8 +349,15 @@
         this.updateLocationBanner(matched.name, matched.type.toUpperCase(), matched.weather);
 
         if (this.autoWeather && this.weatherEngine) {
-          this.weatherEngine.setWeather(matched.weather || "sunny");
-          this.updateActiveWeatherButton(matched.weather || "sunny");
+          const w = matched.weather || "sunny";
+          this.weatherEngine.setWeather(w);
+          this.updateActiveWeatherButton(w);
+
+          // Auto-Sync Grass Palette with Route Climate!
+          if (w === "snow") this.setGrassPalette("snow");
+          else if (w === "ash") this.setGrassPalette("ash");
+          else if (w === "rain" || w === "thunderstorm" || w === "downpour") this.setGrassPalette("rain");
+          else this.setGrassPalette("sunny");
         }
 
         this.renderEncounters(matched.name);
@@ -368,7 +416,7 @@
     }
 
     initUI() {
-      // Warp selector dropdown populate
+      // Warp selector dropdown
       const warpSelect = document.getElementById("warp-select");
       if (warpSelect && this.routes) {
         warpSelect.innerHTML = `<option value="">⚡ Teleport / Warp To Route...</option>` +
@@ -413,6 +461,12 @@
             this.weatherEngine.setWeather(weather);
           }
           this.updateActiveWeatherButton(weather);
+
+          // Update grass palette when weather is manually chosen
+          if (weather === "snow") this.setGrassPalette("snow");
+          else if (weather === "ash") this.setGrassPalette("ash");
+          else if (weather === "rain" || weather === "thunderstorm") this.setGrassPalette("rain");
+          else if (weather === "sunny") this.setGrassPalette("sunny");
         });
       });
 
@@ -422,8 +476,13 @@
         autoCheck.addEventListener("change", (e) => {
           this.autoWeather = e.target.checked;
           if (this.autoWeather && this.currentLocation && this.weatherEngine) {
-            this.weatherEngine.setWeather(this.currentLocation.weather || "sunny");
-            this.updateActiveWeatherButton(this.currentLocation.weather || "sunny");
+            const w = this.currentLocation.weather || "sunny";
+            this.weatherEngine.setWeather(w);
+            this.updateActiveWeatherButton(w);
+            if (w === "snow") this.setGrassPalette("snow");
+            else if (w === "ash") this.setGrassPalette("ash");
+            else if (w === "rain" || w === "thunderstorm" || w === "downpour") this.setGrassPalette("rain");
+            else this.setGrassPalette("sunny");
           }
         });
       }
@@ -443,7 +502,7 @@
             avatarEl.style.display = "block";
             shadowEl.style.display = "block";
             crosshairEl.style.display = "none";
-            avatarEl.src = "assets/sprites/rayquaza.png";
+            this.updateAvatarDirection(this.avatarFacing);
             avatarEl.style.width = "64px";
             avatarEl.style.height = "64px";
           } else if (type === "brendan_bike") {
@@ -453,13 +512,15 @@
             avatarEl.src = "assets/sprites/brendan_bike.png";
             avatarEl.style.width = "48px";
             avatarEl.style.height = "48px";
+            avatarEl.style.transform = "scaleX(1)";
           } else if (type === "brendan_walk") {
             avatarEl.style.display = "block";
             shadowEl.style.display = "block";
             crosshairEl.style.display = "none";
             avatarEl.src = "assets/sprites/brendan_walk.png";
-            avatarEl.style.width = "36px";
+            avatarEl.style.width = "32px";
             avatarEl.style.height = "48px";
+            avatarEl.style.transform = "scaleX(1)";
           } else if (type === "crosshair") {
             avatarEl.style.display = "none";
             shadowEl.style.display = "none";
