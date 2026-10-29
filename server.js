@@ -391,7 +391,7 @@ const server = http.createServer(async (request, response) => {
         }
 
         // --- API ROUTES ---
-        if (pathname === "/api/status" && request.method === "GET") {
+        if (pathname === "/api/status" && (request.method === "GET" || request.method === "HEAD")) {
             return sendJson(response, 200, {
                 emeraldDir: EMERALD_ROOT,
                 status: "ready",
@@ -399,7 +399,7 @@ const server = http.createServer(async (request, response) => {
             });
         }
 
-        if (pathname === "/api/dialogues" && request.method === "GET") {
+        if (pathname === "/api/dialogues" && (request.method === "GET" || request.method === "HEAD")) {
             const dialogues = getAllDialogues();
             return sendJson(response, 200, {
                 emeraldDir: EMERALD_ROOT,
@@ -415,14 +415,14 @@ const server = http.createServer(async (request, response) => {
             return sendJson(response, 200, { ok: true, dialogue: updated });
         }
 
-        if (pathname === "/api/maps" && request.method === "GET") {
+        if (pathname === "/api/maps" && (request.method === "GET" || request.method === "HEAD")) {
             if (fs.existsSync(MAPS_FILE)) {
                 return sendFile(response, MAPS_FILE, "application/json");
             }
             return sendJson(response, 200, []);
         }
 
-        if (pathname === "/api/routes" && request.method === "GET") {
+        if (pathname === "/api/routes" && (request.method === "GET" || request.method === "HEAD")) {
             if (fs.existsSync(ROUTES_FILE)) {
                 return sendFile(response, ROUTES_FILE, "application/json");
             }
@@ -431,7 +431,7 @@ const server = http.createServer(async (request, response) => {
 
         // Tile proxy: /api/tiles/:map/:z/:x/:y.png
         const tileMatch = pathname.match(/^\/api\/tiles\/([^/]+)\/(\d+)\/(\d+)\/(\d+)\.png$/);
-        if (tileMatch && request.method === "GET") {
+        if (tileMatch && (request.method === "GET" || request.method === "HEAD")) {
             const [, mapName, z, x, y] = tileMatch;
             return handleTileRequest(response, mapName, z, x, y);
         }
