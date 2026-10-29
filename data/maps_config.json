@@ -1,0 +1,218 @@
+[
+  {
+    "id": "Overworld",
+    "name": "Hoenn Overworld",
+    "type": "overworld",
+    "minZoom": 3,
+    "maxZoom": 7,
+    "defaultZoom": 5,
+    "center": [
+      -72.79,
+      32.0
+    ]
+  },
+  {
+    "id": "Underwater",
+    "name": "Deep Ocean & Trenches",
+    "type": "underwater",
+    "minZoom": 3,
+    "maxZoom": 7,
+    "defaultZoom": 5,
+    "center": [
+      -40.0,
+      140.0
+    ]
+  },
+  {
+    "id": "PetalburgWoods",
+    "name": "Petalburg Woods",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "RusturfTunnel",
+    "name": "Rusturf Tunnel",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "GraniteCave",
+    "name": "Granite Cave",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "FieryPath",
+    "name": "Fiery Path",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "MeteorFalls",
+    "name": "Meteor Falls",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -10.0,
+      24.0
+    ]
+  },
+  {
+    "id": "MtChimney",
+    "name": "Mt. Chimney Crater",
+    "type": "dungeon",
+    "minZoom": 6,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "JaggedPass",
+    "name": "Jagged Pass",
+    "type": "dungeon",
+    "minZoom": 6,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "NewMauville",
+    "name": "New Mauville Power Plant",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "SafariZone",
+    "name": "Safari Zone Expansion",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "MtPyre",
+    "name": "Mt. Pyre Ghost Summit",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "ShoalCave",
+    "name": "Shoal Cave (Low/High Tide)",
+    "type": "dungeon",
+    "minZoom": 4,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "AquaHideout",
+    "name": "Team Aqua Hideout",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "MagmaHideout",
+    "name": "Team Magma Hideout",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "AbandonedShip",
+    "name": "Abandoned Ship",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "Sootopolis",
+    "name": "Sootopolis City Crater",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  },
+  {
+    "id": "VictoryRoad",
+    "name": "Victory Road Champions Path",
+    "type": "dungeon",
+    "minZoom": 5,
+    "maxZoom": 7,
+    "defaultZoom": 6,
+    "center": [
+      -12.0,
+      25.0
+    ]
+  }
+]

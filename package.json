@@ -1,0 +1,21 @@
+{
+  "name": "emerald-studio",
+  "version": "2.0.0",
+  "description": "Standalone Pokémon Emerald Free-Fly World Map Tester and Dialogue Studio",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "pokemon-emerald",
+    "pokeemerald",
+    "decomp",
+    "dialogue-editor",
+    "map-viewer",
+    "free-fly",
+    "noclip"
+  ],
+  "author": "Saharsh",
+  "license": "MIT"
+}

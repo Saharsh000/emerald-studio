@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emerald Studio · World Map Free-Fly Tester & Dialogue Studio</title>
+
+  <!-- Bundled Leaflet for 100% Offline Capability -->
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="css/studio.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/dialogue.css">
+</head>
+<body>
+  <!-- Global Top Header -->
+  <header class="studio-header">
+    <div class="brand-section">
+      <div class="brand-badge">⚡</div>
+      <div>
+        <h1 class="brand-title">Emerald Studio</h1>
+        <p class="brand-subtitle">v2.0 · Free-Fly Overworld & Dialogue Suite</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="studio-tabs">
+      <button type="button" class="tab-btn active" data-tab="map">
+        <span>🌍</span>
+        <span>World Map Explorer</span>
+        <span style="font-size:0.68rem; opacity:0.6; padding:1px 5px; background:rgba(0,0,0,0.25); border-radius:4px;">1</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="dialogue">
+        <span>💬</span>
+        <span>Dialogue Studio</span>
+        <span style="font-size:0.68rem; opacity:0.6; padding:1px 5px; background:rgba(0,0,0,0.25); border-radius:4px;">2</span>
+      </button>
+    </nav>
+
+    <!-- Emerald Repo Link Badge -->
+    <div class="header-status-section">
+      <div class="emerald-repo-pill" title="Emerald Project Root">
+        <span class="pulse-dot"></span>
+        <span id="repo-path-pill">pokeemerald</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Viewport Stage -->
+  <main class="studio-viewport">
+    
+    <!-- ============================================== -->
+    <!-- TAB 1: Real-Time Free-Fly World Map Tester -->
+    <!-- ============================================== -->
+    <section id="tab-map" class="viewport-tab active">
+      <div class="map-container-wrapper">
+        <!-- Interactive Leaflet Map -->
+        <div id="emerald-leaflet-map"></div>
+
+        <!-- 60 FPS Weather Canvas Overlay -->
+        <canvas id="weather-canvas"></canvas>
+
+        <!-- Ambient Lightning Flash -->
+        <div id="lightning-flash" class="lightning-flash"></div>
+
+        <!-- Flying Body Avatar in Center of Viewport -->
+        <div class="player-avatar-wrapper">
+          <img id="player-avatar-sprite" class="player-avatar-sprite" src="assets/sprites/rayquaza.png" alt="Flying Avatar">
+          <div id="player-shadow" class="player-shadow"></div>
+          <div id="crosshair-hud" class="crosshair-hud" style="display:none;"></div>
+        </div>
+
+        <!-- HUD: Route Location Banner (Top-Left) -->
+        <div class="hud-card hud-location-banner">
+          <div class="location-badge" id="banner-location-badge">📍 TOWN</div>
+          <div class="location-name" id="banner-location-name">Littleroot Town</div>
+          <div class="location-meta">
+            <span id="banner-location-weather">Atmosphere: SUNNY</span>
+            <span>·</span>
+            <span style="color:var(--mint);">No Collision / Free-Fly</span>
+          </div>
+        </div>
+
+        <!-- HUD: Quick Controls Bar (Top-Right) -->
+        <div class="hud-card hud-controls-bar">
+          <!-- Quick Teleport Dropdown -->
+          <select id="warp-select" class="control-select" style="min-width: 190px;">
+            <option value="">⚡ Teleport / Warp...</option>
+          </select>
+
+          <!-- Map Dimension Switcher -->
+          <select id="map-layer-select" class="control-select">
+            <option value="Overworld">🗺️ Hoenn Overworld</option>
+            <option value="Underwater">🌊 Deep Ocean Trenches</option>
+          </select>
+
+          <!-- Avatar Selector -->
+          <select id="avatar-select" class="control-select">
+            <option value="rayquaza">🐉 Prof Rayquaza</option>
+            <option value="brendan_bike">🚴 Mach Brendan</option>
+            <option value="brendan_walk">🚶 Brendan Walk</option>
+            <option value="crosshair">🎯 Crosshair Drone</option>
+            <option value="none">🚫 Hidden Avatar</option>
+          </select>
+
+          <!-- Weather Control Group -->
+          <div style="display:flex; align-items:center; gap:4px; padding-left:4px; border-left:1px solid var(--line);">
+            <button type="button" class="control-btn weather-btn" data-weather="rain" title="Rain">🌧️</button>
+            <button type="button" class="control-btn weather-btn" data-weather="thunderstorm" title="Thunderstorm">⛈️</button>
+            <button type="button" class="control-btn weather-btn" data-weather="snow" title="Snow">❄️</button>
+            <button type="button" class="control-btn weather-btn active" data-weather="sunny" title="Sunny">☀️</button>
+            <button type="button" class="control-btn weather-btn" data-weather="ash" title="Volcanic Ash">🌋</button>
+            <button type="button" class="control-btn weather-btn" data-weather="fog" title="Fog">🌫️</button>
+          </div>
+
+          <label style="display:flex; align-items:center; gap:5px; font-size:0.73rem; color:var(--muted); margin-left:4px; cursor:pointer;">
+            <input type="checkbox" id="auto-weather-check" checked style="accent-color:var(--mint);">
+            <span>Auto Sync</span>
+          </label>
+        </div>
+
+        <!-- HUD: Telemetry & Controls (Bottom-Left) -->
+        <div class="hud-card hud-telemetry">
+          <div class="telemetry-row">
+            <span class="telemetry-label">MAP:</span>
+            <span class="telemetry-val" id="telemetry-map">Overworld</span>
+            <span class="telemetry-label">ZOOM:</span>
+            <span class="telemetry-val" id="telemetry-zoom">5x (100% GBA)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">COORDS:</span>
+            <span class="telemetry-val" id="telemetry-coords">X: 127 | Y: -290</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">SPEED:</span>
+            <span class="telemetry-val" id="telemetry-speed">0 px/s (Hovering)</span>
+          </div>
+          <div class="flight-keys-hint">
+            <span><span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span> Fly</span>
+            <span>·</span>
+            <span><span class="key-badge">SHIFT</span> Mach Boost</span>
+            <span>·</span>
+            <span><span class="key-badge">SPACE</span> Hyper Warp</span>
+          </div>
+        </div>
+
+        <!-- HUD: Wild Encounters Peek Radar (Bottom-Right) -->
+        <div class="hud-card hud-encounters-card">
+          <div class="encounters-header">
+            <div class="encounters-title">
+              <span>📡</span>
+              <span>Area Encounters Radar</span>
+            </div>
+            <span id="encounters-count-badge" style="font-size:0.7rem; color:var(--mint); font-family:var(--font-mono);">Active</span>
+          </div>
+
+          <div class="starter-warning-banner">
+            <span>🛡️</span>
+            <span><strong>Starters: 0% Wild</strong> (Rayquaza Gift Only)</span>
+          </div>
+
+          <div id="encounters-list-container" class="encounters-list">
+            <!-- Populated dynamically based on active route -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- TAB 2: Emerald Dialogue Studio -->
+    <!-- ============================================== -->
+    <section id="tab-dialogue" class="viewport-tab">
+      <div class="dialogue-studio-layout">
+        <!-- Dialogue Navigation Sidebar -->
+        <aside class="dialogue-sidebar">
+          <div class="dialogue-controls">
+            <!-- Overall Progress -->
+            <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:var(--muted);">
+              <span>Overall Script Progress</span>
+              <strong id="overall-progress-count" style="color:var(--mint);">0 / 0</strong>
+            </div>
+            <div style="height:6px; background:#182338; border-radius:3px; overflow:hidden;">
+              <div id="overall-progress-bar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--cyan), var(--mint));"></div>
+            </div>
+
+            <!-- Search Bar -->
+            <input type="search" id="dialogue-search" class="dialogue-search" placeholder="Search dialogues, labels, files, text…">
+
+            <!-- Filter Controls -->
+            <div class="dialogue-filters-row">
+              <select id="dialogue-scope" class="filter-select">
+                <option value="all">All Chapters</option>
+                <option value="story">Main Story (01–12)</option>
+                <option value="optional">Optional / Shared (13)</option>
+              </select>
+              <select id="dialogue-state" class="filter-select">
+                <option value="all">All Items</option>
+                <option value="todo">Needs Review</option>
+                <option value="done">Completed</option>
+              </select>
+            </div>
+
+            <div id="dialogue-filter-note" class="filter-stats-text">Loading dialogues…</div>
+          </div>
+
+          <!-- Dialogue List Container -->
+          <div id="dialogue-list" class="dialogue-list-pane">
+            <!-- Populated by dialogue.js -->
+          </div>
+        </aside>
+
+        <!-- Dialogue Editor Main Stage -->
+        <div class="dialogue-main-stage">
+          <!-- Empty State -->
+          <div id="dialogue-empty-state" style="padding:4rem 2rem; text-align:center; color:var(--muted);">
+            <div style="font-size:3rem; margin-bottom:1rem;">📜</div>
+            <h2 style="font-size:1.2rem; color:var(--ink); margin-bottom:0.5rem;">Select a Dialogue String</h2>
+            <p style="font-size:0.85rem; max-width:420px; margin:0 auto;">
+              Choose any dialogue entry from the sidebar to inspect its source, preview in-game GBA rendering, and edit `.string` definitions live.
+            </p>
+          </div>
+
+          <!-- Active Form Stage -->
+          <div id="dialogue-form-stage" class="dialogue-editor-pane" style="display:none;">
+            <div class="editor-headline">
+              <div>
+                <h2 id="editor-title-label" class="editor-target-label">Dialogue_Label</h2>
+                <div id="editor-file-info" class="editor-file-badge">data/maps/LittlerootTown/scripts.inc:12</div>
+              </div>
+              <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; cursor:pointer;">
+                <input type="checkbox" id="dialogue-complete-check" style="accent-color:var(--mint);">
+                <span>Mark Checked Off</span>
+              </label>
+            </div>
+
+            <!-- Dialogue Textarea -->
+            <div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.75rem; color:var(--muted);">
+                <span>Dialogue Text (.string)</span>
+                <span id="dialogue-char-count" style="font-family:var(--font-mono); color:var(--cyan);">0 chars</span>
+              </div>
+              <textarea id="dialogue-text" class="dialogue-textarea" spellcheck="false" placeholder="Enter dialogue text..."></textarea>
+            </div>
+
+            <!-- GBA In-Game Preview Box -->
+            <div>
+              <div style="margin-bottom:0.4rem; font-size:0.75rem; color:var(--muted);">
+                <span>🎮 GBA Textbox Live Preview (Simulates \p page breaks and \n newlines)</span>
+              </div>
+              <div id="dialogue-preview" class="gba-preview-box"></div>
+            </div>
+
+            <!-- Action Footer -->
+            <div class="editor-action-footer">
+              <span id="dialogue-status" class="save-status-msg"></span>
+              <button type="button" id="dialogue-save-btn" class="dialogue-save-btn">
+                <span>💾</span>
+                <span>Save to Disk (Cmd+S)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Client App Scripts -->
+  <script src="vendor/leaflet.js"></script>
+  <script src="weather.js"></script>
+  <script src="map.js"></script>
+  <script src="dialogue.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
